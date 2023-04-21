@@ -4,7 +4,11 @@ const formatDateString = (dateString) => {
 };
 
 const StatusList = ({ statuses }) => {
-    const formatDate = (date) => {
+    if (!statuses) {
+        return <div>Loading...</div>;
+    }
+
+    const formatDateString = (date) => {
         const d = new Date(date);
         return ('0' + d.getDate()).slice(-2) + ('0' + (d.getMonth() + 1)).slice(-2) + (d.getFullYear() % 100);
     };
