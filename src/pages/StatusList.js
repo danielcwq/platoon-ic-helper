@@ -18,20 +18,26 @@ const StatusList = ({ statuses }) => {
         const startDateFormatted = startDate ? formatDateString(startDate) : '';
         const endDateFormatted = endDate ? formatDateString(endDate) : '';
         const days = endDate && startDate ? Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1 : '';
-
-
+    
         if (condition === 'Report Sick') {
             return `${id} - ${reason}`;
-        } else if (condition === 'UFD') {
-            return `${id} - ${days}D ${condition} (${startDateFormatted}-${endDateFormatted})`;
         } else {
+            const idDisplay = showId ? `${id} - ` : '';
+            const conditionDisplay =
+                condition !== 'UFD' && condition !== 'RMJ'
+                    ? `${days}D ${condition}`
+                    : `${days}D ${condition} (${startDateFormatted}-${endDateFormatted})`;
             return (
-                `${id} - ${days}D ${condition} (${startDateFormatted}-${endDateFormatted})` +
-                (status.additionalCondition ? ` + ${days}D ${status.additionalCondition} (${startDateFormatted}-${endDateFormatted})` : '')
+                `${idDisplay}${conditionDisplay}` +
+                (status.additionalCondition
+                    ? ` + ${days}D ${status.additionalCondition} (${startDateFormatted}-${endDateFormatted})`
+                    : '')
             );
         }
     };
-
+    
+    
+    
 
     const ufdStatuses = statuses.filter((status) => status.condition === 'UFD');
     const padWithZero = (number) => number.toString().padStart(2, '0');
@@ -46,18 +52,21 @@ const StatusList = ({ statuses }) => {
     const ufdCount = statuses.filter((status) => status.condition === 'UFD').length;
     const rmjCount = statuses.filter((status) => status.condition === 'RMJ').length;
     const ldCount = statuses.filter((status) => status.condition === 'LD').length;
+    const reportSickStatuses = statuses.filter((status) => status.condition === 'Report Sick');
+    const reportSickCount = reportSickStatuses.length;
     const currentStrength = totalStrength - ufdCount;
-    const participatingStrength = currentStrength - ldCount;
+    const participatingStrength = totalStrength- ldCount - ufdCount - reportSickCount - rmjCount;
 
 
     const strengthsSummary = `Current Strength : ${padWithZero(currentStrength)}/${totalStrength}\nParticipating Strength: ${padWithZero(participatingStrength)}/${totalStrength}\n\n`;
 
     const groupedStatuses = statuses.reduce((groups, status) => {
         if (status.condition !== 'UFD') {
-            if (!groups[status.id]) {
-                groups[status.id] = [];
+            const key = `${status.id}-${status.condition}`;
+            if (!groups[key]) {
+                groups[key] = [];
             }
-            groups[status.id].push(status);
+            groups[key].push(status);
         }
         return groups;
     }, {});
@@ -71,8 +80,7 @@ const StatusList = ({ statuses }) => {
         })
         .join('\n');
 
-    const reportSickStatuses = statuses.filter((status) => status.condition === 'Report Sick');
-    const reportSickCount = reportSickStatuses.length;
+    
     const reportSickSummary =
         reportSickCount > 0
             ? `REPORT SICK: ${padWithZero(reportSickCount)}\n${reportSickStatuses
