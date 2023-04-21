@@ -17,24 +17,21 @@ const StatusList = ({ statuses, removeStatus}) => {
         const { id, condition, startDate, endDate, reason } = status;
         const startDateFormatted = startDate ? formatDateString(startDate) : '';
         const endDateFormatted = endDate ? formatDateString(endDate) : '';
-        const days = endDate && startDate ? Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1 : '';
-    
+        const days = endDate && startDate ? Math.ceil((new Date (endDate) - new Date (startDate)) / (1000 * 60 * 60 * 24)) + 1 : '';
+      
         if (condition === 'Report Sick') {
             return `${id} - ${reason}`;
         } else {
             const idDisplay = showId ? `${id} - ` : '';
-            const conditionDisplay =
-                condition !== 'UFD' && condition !== 'RMJ'
-                    ? `${days}D ${condition}`
-                    : `${days}D ${condition} (${startDateFormatted}-${endDateFormatted})`;
+            const conditionDisplay = condition !== 'UFD' ? `${days}D ${condition}` : `${days}D ${condition} (${startDateFormatted}-${endDateFormatted})`;
+            const datesDisplay = ` (${startDateFormatted}-${endDateFormatted})`; // Add this line to show the dates for all conditions
             return (
-                `${idDisplay}${conditionDisplay}` +
-                (status.additionalCondition
-                    ? ` + ${days}D ${status.additionalCondition} (${startDateFormatted}-${endDateFormatted})`
-                    : '')
+                `${idDisplay}${conditionDisplay}${datesDisplay}` + // Include the datesDisplay variable here
+                (status.additionalCondition ? ` + ${days}D ${status.additionalCondition} (${startDateFormatted}-${endDateFormatted})` : '')
             );
         }
     };
+    
     
     
     
