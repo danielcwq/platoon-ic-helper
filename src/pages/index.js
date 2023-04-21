@@ -38,6 +38,15 @@ export default function Index() {
     return () => clearInterval(timer);
   }, []);
 
+    // Inside Index() component
+
+    const removeStatus = (id) => {
+      setStatuses(statuses.filter((status) => status.id !== id));
+    };
+
+    // Pass this function to StatusList component
+    <StatusList statuses={statuses} removeStatus={removeStatus} />
+
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 text-black">
@@ -45,7 +54,7 @@ export default function Index() {
         <h1 className="text-2xl font-bold">Status Management</h1>
           <p> Please do RMJ first if not this system will bug out.</p>
         <StatusForm addStatus={addStatus} />
-        <StatusList statuses={statuses} />
+        <StatusList statuses={statuses} removeStatus = {removeStatus}/>
       </div>
     </div>
 

@@ -1,6 +1,6 @@
 
 
-const StatusList = ({ statuses }) => {
+const StatusList = ({ statuses, removeStatus}) => {
     if (!statuses) {
         return <div>Loading...</div>;
     }
@@ -81,12 +81,27 @@ const StatusList = ({ statuses }) => {
         .join('\n');
 
     
-    const reportSickSummary =
+        const reportSickSummary =
         reportSickCount > 0
-            ? `REPORT SICK: ${padWithZero(reportSickCount)}\n${reportSickStatuses
-                .map((status) => `${status.id} - ${status.reason}`)
-                .join('\n')}\n\n`
-            : '';
+          ? `REPORT SICK: ${padWithZero(reportSickCount)}\n${reportSickStatuses
+              .map(
+                (status) =>
+                  `${status.id} - ${status.reason} ` +
+                  `<button data-id="${status.id}" class="bg-red-500 text-white font-semibold rounded-md hover:bg-red-600 px-2 py-1">Remove</button>`
+              )
+              .join('\n')}\n\n`
+          : '';
+
+          // Inside StatusList component
+
+const handleRemoveButtonClick = (e) => {
+    if (e.target.tagName === "BUTTON") {
+      const id = e.target.dataset.id;
+      removeStatus(id);
+    }
+  };
+  
+
     const copyToClipboard = () => {
         const contentToCopy = `${strengthsSummary}${ufdSummary}${reportSickSummary}STATUSES: ${padWithZero(ldCount + rmjCount)}\n${formattedStatuses}`;
         navigator.clipboard.writeText(contentToCopy).then(
@@ -103,7 +118,11 @@ const StatusList = ({ statuses }) => {
             <h2 className="text-lg font-bold">STATUSES</h2>
             <pre className="whitespace-pre-wrap break-all bg-white p-4 border border-gray-300 rounded-md">{formattedStatuses}</pre>
             <h2 className="text-lg font-bold">Report Sick</h2>
-            <pre className="whitespace-pre-wrap break-words">{reportSickSummary}</pre>
+            <pre
+  className="whitespace-pre-wrap break-words"
+  onClick={handleRemoveButtonClick}
+  dangerouslySetInnerHTML={{ __html: reportSickSummary }}
+/>
             <button
                 onClick={copyToClipboard}
                 className="w-full py-2 px-4 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600"
