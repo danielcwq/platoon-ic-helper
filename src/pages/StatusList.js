@@ -1,7 +1,4 @@
-const formatDateString = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' });
-};
+
 
 const StatusList = ({ statuses }) => {
     if (!statuses) {
@@ -9,16 +6,19 @@ const StatusList = ({ statuses }) => {
     }
 
     const formatDateString = (date) => {
-        const d = new Date(date);
+       const d = new Date(date);
         return ('0' + d.getDate()).slice(-2) + ('0' + (d.getMonth() + 1)).slice(-2) + (d.getFullYear() % 100);
     };
+   
+    
 
 
     const formatStatus = (status, showId = true) => {
         const { id, condition, startDate, endDate, reason } = status;
         const startDateFormatted = startDate ? formatDateString(startDate) : '';
         const endDateFormatted = endDate ? formatDateString(endDate) : '';
-        const days = endDate && startDate ? Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1 : '';
+        const days = endDate && startDate ? Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1 : '';
+
 
         if (condition === 'Report Sick') {
             return `${id} - ${reason}`;
