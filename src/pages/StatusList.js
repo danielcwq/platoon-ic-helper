@@ -1,5 +1,3 @@
-
-
 const StatusList = ({ statuses, removeStatus}) => {
     if (!statuses) {
         return <div>Loading...</div>;
@@ -40,9 +38,9 @@ const StatusList = ({ statuses, removeStatus}) => {
     const padWithZero = (number) => number.toString().padStart(2, '0');
 
     const ufdSummary =
-        ufdStatuses.length > 0
-            ? `UFD : ${padWithZero(ufdStatuses.length)}\n${ufdStatuses.map((status) => formatStatus(status)).join('\n')}\n\n`
-            : '';
+    ufdStatuses.length > 0
+        ? `UFD : ${padWithZero(ufdStatuses.length)}\n${ufdStatuses.map((status) => formatStatus(status, true)).join('\n')}\n\n`
+        : '';
 
 
     const totalStrength = 63;
@@ -52,10 +50,9 @@ const StatusList = ({ statuses, removeStatus}) => {
     const reportSickStatuses = statuses.filter((status) => status.condition === 'Report Sick');
     const reportSickCount = reportSickStatuses.length;
     const currentStrength = totalStrength - ufdCount;
-    const participatingStrength = totalStrength- ldCount - ufdCount - reportSickCount - rmjCount;
 
 
-    const strengthsSummary = `Current Strength : ${padWithZero(currentStrength)}/${totalStrength}\nParticipating Strength: ${padWithZero(participatingStrength)}/${totalStrength}\n\n`;
+
 
     const groupedStatuses = statuses.reduce((groups, status) => {
         if (status.condition !== 'UFD') {
@@ -71,11 +68,15 @@ const StatusList = ({ statuses, removeStatus}) => {
     const formattedStatuses = Object.values(groupedStatuses)
         .map((statusGroup) => {
             const formattedGroup = statusGroup
-                .map((status, index) => formatStatus(status, index === 0))
-                .join(' + ');
+                .map((status, index) => {
+                    const formattedStatus = formatStatus(status, index === 0);
+                    return index === 0 ? formattedStatus : ` + ${formattedStatus}`;
+                })
+                .join('');
             return formattedGroup;
         })
         .join('\n');
+
 
     
         const reportSickSummary =
@@ -98,14 +99,44 @@ const handleRemoveButtonClick = (e) => {
     }
   };
   
+  const combineStatusEntries = (formattedStatuses) => {
+    const combinedStatuses = {};
 
-    const copyToClipboard = () => {
-        const contentToCopy = `${strengthsSummary}${ufdSummary}${reportSickSummary}STATUSES: ${padWithZero(ldCount + rmjCount)}\n${formattedStatuses}`;
-        navigator.clipboard.writeText(contentToCopy).then(
-            () => alert('Statuses copied to clipboard!'),
-            (err) => console.error('Could not copy text: ', err)
-        );
-    };
+    formattedStatuses.forEach((status) => {
+      const [id, condition] = status.split(' - ');
+
+      if (!combinedStatuses[id]) {
+        combinedStatuses[id] = [];
+      }
+
+      combinedStatuses[id].push(condition);
+    });
+
+    return Object.entries(combinedStatuses).map(
+      ([id, conditions]) => `${id} - ${conditions.join(' + ')}`
+    );
+  };
+
+  const ldAndRmjStatuses = statuses.filter(
+    (status) => status.condition === 'LD' || status.condition === 'RMJ'
+  );
+
+  const formattedLdAndRmjStatuses = ldAndRmjStatuses.map((status) =>
+    formatStatus(status)
+  );
+
+  const combinedLdAndRmjStatuses = combineStatusEntries(formattedLdAndRmjStatuses);
+  const ldAndRmjIdSet = new Set(ldAndRmjStatuses.map((status) => status.id));
+  const participatingStrength = totalStrength - ufdCount - ldAndRmjIdSet.size - reportSickCount;
+  const strengthsSummary = `Current Strength : ${padWithZero(currentStrength)}/${totalStrength}\nParticipating Strength: ${padWithZero(participatingStrength)}/${totalStrength}\n\n`;
+
+  const copyToClipboard = () => {
+    const contentToCopy = `${strengthsSummary}${ufdSummary}${reportSickSummary}STATUSES: ${padWithZero(ldCount + rmjCount)}\n${combinedLdAndRmjStatuses.join('\n')}`;
+    navigator.clipboard.writeText(contentToCopy).then(
+      () => alert('Statuses copied to clipboard!'),
+      (err) => console.error('Could not copy text: ', err)
+    );
+  };
     return (
         <div className="space-y-4">
             <h2 className="text-lg font-bold">Strength</h2>
@@ -113,7 +144,9 @@ const handleRemoveButtonClick = (e) => {
             <h2 className="text-lg font-bold">UFD</h2>
             <pre className="whitespace-pre-wrap break-all bg-white p-4 border border-gray-300 rounded-md">{ufdSummary}</pre>
             <h2 className="text-lg font-bold">STATUSES</h2>
-            <pre className="whitespace-pre-wrap break-all bg-white p-4 border border-gray-300 rounded-md">{formattedStatuses}</pre>
+            <pre className="whitespace-pre-wrap break-all bg-white p-4 border border-gray-300 rounded-md">
+        {combinedLdAndRmjStatuses.join('\n')}
+      </pre>
             <h2 className="text-lg font-bold">Report Sick</h2>
             <pre
   className="whitespace-pre-wrap break-words"
