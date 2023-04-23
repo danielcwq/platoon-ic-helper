@@ -163,22 +163,22 @@ const participatingStrength = totalStrength - ldAndRmjUniqueIDs.size - ufdCount 
   const copyToClipboard = () => {
     const today = new Date();
     const formattedToday = `${padWithZero(today.getDate())}${padWithZero(today.getMonth() + 1)}${today.getFullYear().toString().substr(-2)}`;
-
+  
     const ufdIds = new Set(ufdStatuses.map((status) => status.id));
     const ldAndRmjIds = new Set(ldAndRmjStatuses.map((status) => status.id));
     const reportSickIds = new Set(reportSickStatuses.map((status) => status.id));
     const allUniqueIds = new Set([...ufdIds, ...ldAndRmjIds, ...reportSickIds]);
     const participatingStrengthUnique = totalStrength - allUniqueIds.size;
-
+  
     const strengthsSummaryUnique = `Current Strength : ${padWithZero(currentStrength)}/${totalStrength}\nParticipating Strength: ${padWithZero(participatingStrengthUnique)}/${totalStrength}\n\n`;
-
-    const contentToCopy = `Platoon 1 Activity Str for ${formattedToday}\n\n${strengthsSummaryUnique}${ufdSummary}STATUSES: ${padWithZero(ldCount + rmjCount)}\n${formattedStatuses}\n\nREPORT SICK\n${reportSickSummary}\nOTHERS\n`;
+  
+    const contentToCopy = `Platoon 1 Activity Str for ${formattedToday}\n\n${strengthsSummaryUnique}${ufdSummary}STATUSES: ${padWithZero(ldCount + rmjCount)}\n${combinedLdAndRmjStatuses.join('\n')}\n\nREPORT SICK\n${reportSickSummary}\nOTHERS\n`;
     navigator.clipboard.writeText(contentToCopy).then(
-        () => alert('Statuses copied to clipboard!'),
-        (err) => console.error('Could not copy text: ', err)
+      () => alert('Statuses copied to clipboard!'),
+      (err) => console.error('Could not copy text: ', err)
     );
-};
-
+  };
+  
   
   
   
