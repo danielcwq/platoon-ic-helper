@@ -185,12 +185,18 @@ const participatingStrength = totalStrength - ldAndRmjUniqueIDs.size - ufdCount 
       return acc;
     }, []);
   
-    const contentToCopy = `Platoon 1 Activity Str for ${formattedToday}\n\n${strengthsSummaryUnique}${ufdSummarySorted}STATUSES: ${padWithZero(ldCount + rmjCount)}\n${aggregatedLdAndRmjStatuses.map(formatStatus).join('\n')}\n\nREPORT SICK\n${reportSickSummary}\nOTHERS\n`;
+    const formattedStatuses = aggregatedLdAndRmjStatuses
+      .sort((a, b) => a.id - b.id)
+      .map(formatStatus)
+      .join('\n');
+  
+    const contentToCopy = `Platoon 1 Activity Str for ${formattedToday}\n\n${strengthsSummaryUnique}${ufdSummarySorted}STATUSES: ${padWithZero(ldCount + rmjCount)}\n${formattedStatuses}\n\nREPORT SICK\n${reportSickSummary}\nOTHERS\n`;
     navigator.clipboard.writeText(contentToCopy).then(
       () => alert('Statuses copied to clipboard!'),
       (err) => console.error('Could not copy text: ', err)
     );
   };
+  
   
   
   
