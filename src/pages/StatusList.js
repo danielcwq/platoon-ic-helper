@@ -172,12 +172,26 @@ const participatingStrength = totalStrength - ldAndRmjUniqueIDs.size - ufdCount 
   
     const strengthsSummaryUnique = `Current Strength : ${padWithZero(currentStrength)}/${totalStrength}\nParticipating Strength: ${padWithZero(participatingStrengthUnique)}/${totalStrength}\n\n`;
   
-    const contentToCopy = `Platoon 1 Activity Str for ${formattedToday}\n\n${strengthsSummaryUnique}${ufdSummary}STATUSES: ${padWithZero(ldCount + rmjCount)}\n${combinedLdAndRmjStatuses.join('\n')}\n\nREPORT SICK\n${reportSickSummary}\nOTHERS\n`;
+    const sortedUfdStatuses = [...ufdStatuses].sort((a, b) => a.id - b.id);
+    const ufdSummarySorted = createStatusSummary(sortedUfdStatuses, 'UFD');
+  
+    const aggregatedLdAndRmjStatuses = [...ldAndRmjStatuses].reduce((acc, curr) => {
+      const existing = acc.find((item) => item.id === curr.id);
+      if (existing) {
+        existing.status += `+${curr.status}`;
+      } else {
+        acc.push(curr);
+      }
+      return acc;
+    }, []);
+  
+    const contentToCopy = `Platoon 1 Activity Str for ${formattedToday}\n\n${strengthsSummaryUnique}${ufdSummarySorted}STATUSES: ${padWithZero(ldCount + rmjCount)}\n${aggregatedLdAndRmjStatuses.map(formatStatus).join('\n')}\n\nREPORT SICK\n${reportSickSummary}\nOTHERS\n`;
     navigator.clipboard.writeText(contentToCopy).then(
       () => alert('Statuses copied to clipboard!'),
       (err) => console.error('Could not copy text: ', err)
     );
   };
+  
   
   
   
