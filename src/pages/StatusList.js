@@ -173,7 +173,7 @@ const participatingStrength = totalStrength - ldAndRmjUniqueIDs.size - ufdCount 
     const strengthsSummaryUnique = `Current Strength : ${padWithZero(currentStrength)}/${totalStrength}\nParticipating Strength: ${padWithZero(participatingStrengthUnique)}/${totalStrength}\n\n`;
   
     const sortedUfdStatuses = [...ufdStatuses].sort((a, b) => a.id - b.id);
-    const ufdSummarySorted = createStatusSummary(sortedUfdStatuses, 'UFD');
+    const ufdSummarySorted = `UFD : ${padWithZero(ufdCount)}\n${sortedUfdStatuses.map(formatStatus).join('\n')}\n\n`;
   
     const aggregatedLdAndRmjStatuses = [...ldAndRmjStatuses].reduce((acc, curr) => {
       const existing = acc.find((item) => item.id === curr.id);
@@ -191,6 +191,7 @@ const participatingStrength = totalStrength - ldAndRmjUniqueIDs.size - ufdCount 
       (err) => console.error('Could not copy text: ', err)
     );
   };
+  
   
   
   
