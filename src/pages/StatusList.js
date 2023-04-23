@@ -15,20 +15,21 @@ const StatusList = ({ statuses, removeStatus}) => {
         const { id, condition, startDate, endDate, reason } = status;
         const startDateFormatted = startDate ? formatDateString(startDate) : '';
         const endDateFormatted = endDate ? formatDateString(endDate) : '';
-        const days = endDate && startDate ? Math.ceil((new Date (endDate) - new Date (startDate)) / (1000 * 60 * 60 * 24)) + 1 : '';
+        const days = endDate && startDate ? Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1 : '';
       
         if (condition === 'Report Sick') {
-            return `${id} - ${reason}`;
+          return `${id} - ${reason}`;
         } else {
-            const idDisplay = showId ? `${id} - ` : '';
-            const conditionDisplay = condition !== 'UFD' ? `${days}D ${condition}` : `${days}D ${condition} (${startDateFormatted}-${endDateFormatted})`;
-            const datesDisplay = ` (${startDateFormatted}-${endDateFormatted})`; // Add this line to show the dates for all conditions
-            return (
-                `${idDisplay}${conditionDisplay}${datesDisplay}` + // Include the datesDisplay variable here
-                (status.additionalCondition ? ` + ${days}D ${status.additionalCondition} (${startDateFormatted}-${endDateFormatted})` : '')
-            );
+          const idDisplay = showId ? `${id} - ` : '';
+          const conditionDisplay = condition !== 'UFD' ? `${days}D ${condition}` : `${days}D ${condition}`;
+          const datesDisplay = ` (${startDateFormatted}-${endDateFormatted})`;
+          return (
+            `${idDisplay}${conditionDisplay}${datesDisplay}` +
+            (status.additionalCondition ? ` + ${days}D ${status.additionalCondition}` : '')
+          );
         }
-    };
+      };
+      
     
     
     
@@ -117,26 +118,72 @@ const handleRemoveButtonClick = (e) => {
     );
   };
 
-  const ldAndRmjStatuses = statuses.filter(
-    (status) => status.condition === 'LD' || status.condition === 'RMJ'
-  );
+ // const ldAndRmjStatuses = statuses.filter(
+ //   (status) => status.condition === 'LD' || status.condition === 'RMJ'
+ // );
 
-  const formattedLdAndRmjStatuses = ldAndRmjStatuses.map((status) =>
-    formatStatus(status)
-  );
+ 
+  const countUniqueIdsWithConditions = (conditions) => {
+    const uniqueIds = new Set(
+      statuses
+        .filter((status) => conditions.includes(status.condition))
+        .map((status) => status.id)
+    );
+    return uniqueIds.size;
+  };
+
+  const getUniqueIds = (statuses) => {
+    const idSet = new Set();
+    statuses.forEach((status) => idSet.add(status.id));
+    return [...idSet];
+  };
+  
+
+  
+
+  const ufdUniqueIds = getUniqueIds(ufdStatuses);
+const ldAndRmjUniqueIds = getUniqueIds(statuses.filter((status) => status.condition === 'LD' || status.condition === 'RMJ'));
+const reportSickUniqueIds = getUniqueIds(reportSickStatuses);
+
+const ldAndRmjStatuses = statuses.filter((status) => status.condition === 'LD' || status.condition === 'RMJ');
+const formattedLdAndRmjStatuses = ldAndRmjStatuses.map((status) =>
+formatStatus(status)
+);
+const ldAndRmjUniqueIDs = new Set(ldAndRmjStatuses.map((status) => status.id));
+const participatingStrength = totalStrength - ldAndRmjUniqueIDs.size - ufdCount - reportSickCount;
+
+
+//const participatingStrength = totalStrength - ufdUniqueIds.length - reportSickUniqueIds.length - ldAndRmjUniqueIds.length;
 
   const combinedLdAndRmjStatuses = combineStatusEntries(formattedLdAndRmjStatuses);
   const ldAndRmjIdSet = new Set(ldAndRmjStatuses.map((status) => status.id));
-  const participatingStrength = totalStrength - ufdCount - ldAndRmjIdSet.size - reportSickCount;
+  const ldAndRmjCount = countUniqueIdsWithConditions(['LD', 'RMJ']);
   const strengthsSummary = `Current Strength : ${padWithZero(currentStrength)}/${totalStrength}\nParticipating Strength: ${padWithZero(participatingStrength)}/${totalStrength}\n\n`;
 
   const copyToClipboard = () => {
-    const contentToCopy = `${strengthsSummary}${ufdSummary}${reportSickSummary}STATUSES: ${padWithZero(ldCount + rmjCount)}\n${combinedLdAndRmjStatuses.join('\n')}`;
+    const today = new Date();
+    const formattedToday = `${padWithZero(today.getDate())}${padWithZero(today.getMonth() + 1)}${today.getFullYear().toString().substr(-2)}`;
+
+    const ufdIds = new Set(ufdStatuses.map((status) => status.id));
+    const ldAndRmjIds = new Set(ldAndRmjStatuses.map((status) => status.id));
+    const reportSickIds = new Set(reportSickStatuses.map((status) => status.id));
+    const allUniqueIds = new Set([...ufdIds, ...ldAndRmjIds, ...reportSickIds]);
+    const participatingStrengthUnique = totalStrength - allUniqueIds.size;
+
+    const strengthsSummaryUnique = `Current Strength : ${padWithZero(currentStrength)}/${totalStrength}\nParticipating Strength: ${padWithZero(participatingStrengthUnique)}/${totalStrength}\n\n`;
+
+    const contentToCopy = `Platoon 1 Activity Str for ${formattedToday}\n\n${strengthsSummaryUnique}${ufdSummary}STATUSES: ${padWithZero(ldCount + rmjCount)}\n${formattedStatuses}\n\nReport Sick\n${reportSickSummary}\nOthers\n`;
     navigator.clipboard.writeText(contentToCopy).then(
-      () => alert('Statuses copied to clipboard!'),
-      (err) => console.error('Could not copy text: ', err)
+        () => alert('Statuses copied to clipboard!'),
+        (err) => console.error('Could not copy text: ', err)
     );
-  };
+};
+
+  
+  
+  
+  
+  
     return (
         <div className="space-y-4">
             <h2 className="text-lg font-bold">Strength</h2>
