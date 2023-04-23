@@ -11,7 +11,7 @@ const StatusList = ({ statuses, removeStatus}) => {
     
 
 
-    const formatStatus = (status, showId = true) => {
+    const formatStatus = (status, showId = false) => {
         const { id, condition, startDate, endDate, reason } = status;
         const startDateFormatted = startDate ? formatDateString(startDate) : '';
         const endDateFormatted = endDate ? formatDateString(endDate) : '';
@@ -30,11 +30,7 @@ const StatusList = ({ statuses, removeStatus}) => {
         }
       };
       
-    
-    
-    
-    
-
+      
     const ufdStatuses = statuses.filter((status) => status.condition === 'UFD');
     const padWithZero = (number) => number.toString().padStart(2, '0');
 
@@ -155,7 +151,8 @@ const participatingStrength = totalStrength - ldAndRmjUniqueIDs.size - ufdCount 
 
 //const participatingStrength = totalStrength - ufdUniqueIds.length - reportSickUniqueIds.length - ldAndRmjUniqueIds.length;
 
-  const combinedLdAndRmjStatuses = combineStatusEntries(formattedLdAndRmjStatuses);
+const combinedLdAndRmjStatuses = combineStatusEntries(formattedLdAndRmjStatuses.map((status) => formatStatus(status, true)));
+
   const ldAndRmjIdSet = new Set(ldAndRmjStatuses.map((status) => status.id));
   const ldAndRmjCount = countUniqueIdsWithConditions(['LD', 'RMJ']);
   const strengthsSummary = `Current Strength : ${padWithZero(currentStrength)}/${totalStrength}\nParticipating Strength: ${padWithZero(participatingStrength)}/${totalStrength}\n\n`;
@@ -196,15 +193,7 @@ const participatingStrength = totalStrength - ldAndRmjUniqueIDs.size - ufdCount 
       (err) => console.error('Could not copy text: ', err)
     );
   };
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
     return (
         <div className="space-y-4">
             <h2 className="text-lg font-bold">Strength</h2>
