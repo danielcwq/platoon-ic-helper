@@ -172,7 +172,7 @@ const participatingStrength = totalStrength - ldAndRmjUniqueIDs.size - ufdCount 
 
     const strengthsSummaryUnique = `Current Strength : ${padWithZero(currentStrength)}/${totalStrength}\nParticipating Strength: ${padWithZero(participatingStrengthUnique)}/${totalStrength}\n\n`;
 
-    const contentToCopy = `Platoon 1 Activity Str for ${formattedToday}\n\n${strengthsSummaryUnique}${ufdSummary}STATUSES: ${padWithZero(ldCount + rmjCount)}\n${formattedStatuses}\n\nReport Sick\n${reportSickSummary}\nOthers\n`;
+    const contentToCopy = `Platoon 1 Activity Str for ${formattedToday}\n\n${strengthsSummaryUnique}${ufdSummary}STATUSES: ${padWithZero(ldCount + rmjCount)}\n${formattedStatuses}\n\nREPORT SICK\n${reportSickSummary}\nOTHERS\n`;
     navigator.clipboard.writeText(contentToCopy).then(
         () => alert('Statuses copied to clipboard!'),
         (err) => console.error('Could not copy text: ', err)
